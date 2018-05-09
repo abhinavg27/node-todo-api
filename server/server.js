@@ -17,7 +17,7 @@ app.post('/todos', (req, res) => {
     todo.save().then((result) => {
         res.send(result)
     },(e) => {
-        res.send(e);
+        res.status(400).send(e);
     });
 });
 
@@ -29,11 +29,13 @@ app.post('/users', (req, res) => {
     user.save().then((result) => {
         res.send(result)
     },(e) => {
-        res.send(e);
+        res.status(400).send(e);
     });
 });
 
 
 app.listen(3000,() => {
     console.log('Server started at 3000 port');
-})
+});
+
+module.exports = {app};
