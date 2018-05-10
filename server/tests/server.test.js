@@ -31,7 +31,6 @@ describe('POST /todos', () => {
     });
 
     it('Should not enter the todos if call with empty string', (done) => {
-
         request(app)
         .post('/todos')
         .send({})
