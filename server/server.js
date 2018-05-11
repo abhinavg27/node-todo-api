@@ -2,12 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
 const _ = require('lodash');
-
+require('./../config/config');
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/Todos');
 var {User} = require('./models/Users');
-
-var port = process.env.PORT || 3000;
+var port = process.env.PORT;
 var app = express();
 
 app.use(bodyParser.json());
