@@ -60,9 +60,7 @@ app.post('/users', (req, res) => {
 });
 
 app.delete('/todos/:id', (req, res) => {
-    console.log('id:',req);
     var id = req.params.id;
-    console.log('id:',id);
     if(!ObjectID.isValid(id)){
         return res.status(404).send();
     }

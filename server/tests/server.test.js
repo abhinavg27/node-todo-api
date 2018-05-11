@@ -76,19 +76,18 @@ describe('GET /todos', () => {
 
 describe('GET /todos/id', () => {
     it('Should send a  GET /todos/id request ', (done) => {
+        var hexId = todos[0]._id.toHexString();
         request(app)
-            .get(`/todos/${todos[0]._id.toHexString()}`)
+            .get(`/todos/${hexId}`)
             .expect(200)
             .expect((res) => {
-                console.log(res.body.todo.text);
-                console.log(todos[0].text);
-                expect(res.body.todo.text).toBe(todos[0].text);
+                expect(res.body.todo._id).toBe(hexId);
             })
             .end( (err, res) => {
             if(err)
                 return done(err);
-            Todo.findById(todos[0]._id).then((todo) => {
-                expect(todo.length).toBe(1);
+            Todo.findById(hexId).then((todo) => {
+                expect(todo.text).toBe(todos[0].text);
                 done();
             }).catch((e) => done(e));
         });
@@ -104,6 +103,41 @@ describe('GET /todos/id', () => {
     it('Should return 404 if invalid id string was send', (done) => {
         request(app)
         .get('/todos/1233')
+        .expect(404)
+        .end(done);
+    });
+});
+
+describe('DELETE /todos/id', () => {
+
+    it('Should call the delete with id provided and delete the entries from db', (done) => {
+        var hexId = todos[0]._id.toHexString();
+        request(app)
+            .delete(`/todos/${hexId}`)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.text).toBe(todos[0].text);
+            })
+            .end((err, res) => {
+                if(err)
+                    return done(err);
+                Todo.findById(hexId).then((todo) =>{
+                    expect(todo).toBe(null);
+                    done();
+                }).catch((e) => done(e));
+            });
+    });
+
+    it('Should return 404 if todo is empty', (done) => {
+        request(app)
+        .delete(`/todos/${(new ObjectID()).toHexString()}`)
+        .expect(404)
+        .end(done);
+    });
+
+    it('Should return 404 if invalid id string was send', (done) => {
+        request(app)
+        .delete('/todos/1233')
         .expect(404)
         .end(done);
     });
