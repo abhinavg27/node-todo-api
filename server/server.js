@@ -6,6 +6,7 @@ var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/Todos');
 var {User} = require('./models/Users');
 
+var port = process.env.PORT || 3000;
 var app = express();
 
 app.use(bodyParser.json());
@@ -59,8 +60,8 @@ app.post('/users', (req, res) => {
 });
 
 
-app.listen(3000,() => {
-    console.log('Server started at 3000 port');
+app.listen(port,() => {
+    console.log(`Server started at ${port} port`);
 });
 
 module.exports = {app};
