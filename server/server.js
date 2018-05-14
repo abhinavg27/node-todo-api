@@ -48,15 +48,15 @@ app.get('/todos/:id', (req, res) => {
 });
 
 app.post('/users', (req, res) => {
-    var user = new User({
-        email: req.body.email
-    });
+    var body = _.pick(req.body, ['email', 'password']);
+    var user = new User(body);
 
-    user.save().then((result) => {
-        res.send(result)
-    },(e) => {
-        res.status(400).send(e);
-    });
+    user.save().then(() => {
+        // res.send(result)
+        return user.generateAuthToken();
+    }).then((token) => {
+        res.header('x-auth', token).send(user);
+    }).catch((e) => res.status(400).send(e));
 });
 
 app.delete('/todos/:id', (req, res) => {
