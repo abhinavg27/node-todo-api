@@ -66,7 +66,6 @@ UserSchema.methods.generateAuthToken = function () {
 };
 
 UserSchema.pre('save', function (next) {
-
     var user = this;
     if(user.isModified('password')){
         var password = user.password;

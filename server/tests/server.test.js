@@ -1,24 +1,12 @@
 const expect = require('expect');
 const request = require('supertest');
 const {ObjectID} = require('mongodb');
+const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 var {app} = require('./../server');
 var {Todo} = require('./../models/Todos');
-
-const todos = [{
-    _id: new ObjectID(),
-    text: 'My first test data'
-},{
-    _id: new ObjectID(),
-    text: 'My Second test data',
-    completed: true,
-    completedAt: 3432432
-}];
-
-beforeEach((done) => {
-    Todo.remove({}).then(() => {
-        return Todo.insertMany(todos)
-    }).then(() => done());
-});
+var {User} = require('./../models/Users');
+beforeEach(populateTodos);
+beforeEach(populateUsers);
 
 describe('POST /todos', () => {
     it('Should call /todos', (done)=>{
@@ -210,5 +198,78 @@ describe('PATCH /todos/id', () => {
         .patch('/todos/1233')
         .expect(404)
         .end(done);
+    });
+});
+
+
+describe('GET /users/me', () => {
+    it('Should return 200 and authenticate the uses', (done) => {
+        request(app)
+            .get('/users/me')
+            .set('x-auth', users[0].tokens[0].token)
+            .expect(200)
+            .expect((res) => {
+               expect(res.body._id).toBe(users[0]._id.toHexString());
+               expect(res.body.email).toBe(users[0].email);
+            }).end(done);
+    });
+
+    it('Should return 401 for un-authenticated user', (done) => {
+        request(app)
+        .get('/users/me')
+        .expect(401)
+        .expect((res) => {
+          expect(res.body).toEqual({});
+        })
+        .end(done);
+    });
+
+});
+
+
+describe('POST /users/', () => {
+    it('Should create a new user and return 200', (done) => {
+        var email = 'abhinav.g2783@gmail.com';
+        var password = '123abc!';
+        request(app)
+            .post('/users')
+            .send({email,password})
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.email).toBe(email);
+                expect(res.body._id).toBeTruthy();
+                expect(res.header['x-auth']).toBeTruthy();
+            }).end((err) => {
+                if(err){
+                    return done(err);
+                }
+                User.findOne({email}).then((user) => {
+                   expect(user).toBeTruthy();
+                   expect(user.email).toBe(email);
+                   expect(user.password).not.toBe(password);
+                   done();
+                });
+            });
+    });
+
+    it('Should send validation error for invalid email and password lenght less than 6', (done) => {
+        var email = 'abc';
+        var password = 'abc';
+        request(app)
+            .post('/users')
+            .send({email,password})
+            .expect(400)
+            .end(done);
+    });
+
+    it('Should send unique email id error', (done) => {
+        var password = '123abc!';
+        request(app)
+            .post('/users')
+            .send({
+                email:users[0].email,
+                password})
+            .expect(400)
+            .end(done);
     });
 });
