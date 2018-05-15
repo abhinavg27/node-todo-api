@@ -6,6 +6,7 @@ require('./../config/config');
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/Todos');
 var {User} = require('./models/Users');
+var {authentication} = require('./middleware/authenticate');
 var port = process.env.PORT;
 var app = express();
 
@@ -45,6 +46,10 @@ app.get('/todos/:id', (req, res) => {
     },(e) => {
         res.status(400).send(e);
     });
+});
+
+app.get('/users/me' , authentication, (req, res) => {
+    res.send(req.user);
 });
 
 app.post('/users', (req, res) => {
