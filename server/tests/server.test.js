@@ -251,7 +251,7 @@ describe('PATCH /todos/id', () => {
         });
     });
 
-    it('Should not clear the complete to false and CompletedAt to null and 404 for unauthorised user', (done) => {
+    it('Should clear the complete to false and CompletedAt to null', (done) => {
         var hexId = todos[1]._id.toHexString();
         var text = 'This should be a new text with completedAt clears out';
         var completed = false;
