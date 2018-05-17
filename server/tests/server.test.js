@@ -325,3 +325,25 @@ describe('POST /users/login', () => {
     });
 });
 
+describe('DELETE /users/me/token', () => {
+
+    it('Should Delete the token if authorised user', (done) => {
+        var email = users[0].email;
+        var token = users[0].tokens[0].token;
+        request(app)
+            .delete('/users/me/token')
+            .set('x-auth', token)
+            .expect(200)
+            .end((err) => {
+                if(err){
+                    return done(err);
+                }
+
+                User.findOne({email}).then((user) => {
+                    expect(user.tokens.length).toBe(0);
+                    done();
+                }).catch((e) => done(e));
+            });
+    });
+});
+
